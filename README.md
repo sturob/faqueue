@@ -9,12 +9,12 @@ A fully asynchronous queue. Stop the browser locking up. Lazily evaluate and mod
 Like a $.lazyEach that you can add more items to. 
 
 
-  var q = faqueue();
-  .each( function(item, callback){ insert(this); callback(); } )
-  .add( item )
-  .perTick( 10 )
-  .breakTime( 100 )
-  // .concurrent(1) 
+    var q = faqueue();
+    .each( function(item, callback){ insert(this); callback(); } )
+    .add( item )
+    .perTick( 10 )
+    .breakTime( 100 )
+    // .concurrent(1) 
 
 .cancel()
 Cancel current processing and clear the queue.
