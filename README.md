@@ -10,23 +10,23 @@ Like a $.lazyEach that you can add more items to.
 
 
     var q = faqueue();
-    .each( function(item, callback){ insert(this); callback(); } )
-    .add( item )
-    .perTick( 10 )
-    .breakTime( 100 )
+    q.each( function(item, callback){ insert(this); callback(); } )
+     .add( item )
+     .perTick( 10 )
+     .breakTime( 100 )
     // .concurrent(1) 
 
 .cancel()
-Cancel current processing and clear the queue.
+Cancel current processing and clear the queue
 
 .clear()
 Clear the queue but continue to wait for new items
 
 .pause()
-Pause processing.
+Pause processing
 
 .start()
-Start processing. Automatically called on creation.
+Start processing. Automatically called on creation
 
 .sort( function(a, b){} )
 Sort the queue with function.
