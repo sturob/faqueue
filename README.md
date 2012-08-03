@@ -1,7 +1,7 @@
 faqueue
 =======
 
-A fully asynchronous queue. Stop the browser locking up. Lazily evaluate and modify a queue. Easily process long lists asynchronously.
+A fully asynchronous queue. Stop the browser locking up. Lazily evaluate and simultaneously modify a queue. Easily process long lists asynchronously.
 
 Like a $.lazyEach that you can add more items to. 
 
