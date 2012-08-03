@@ -3,18 +3,19 @@ faqueue
 
 A fully asynchronous queue. Stop the browser locking up. Lazily evaluate and modify a queue. Easily process long lists asynchronously.
 
-
-
-
 Like a $.lazyEach that you can add more items to. 
 
+Example
+-------
 
-    var q = faqueue();
-    q.each( function(item, callback){ insert(this); callback(); } )
-     .add( item )
-     .perTick( 10 )
+Create a queue that outputs items, 3 items per tick, with a 100ms delay between ticks.
+
+    var q = new Faqueue();
+    q.each( function(item, callback){ console.log(this); callback(); } )
+     .add( [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ] )
+     .perTick( 3 )
      .breakTime( 100 )
-    // .concurrent(1) 
+     
 
 .cancel()
 Cancel current processing and clear the queue
@@ -34,3 +35,4 @@ Sort the queue with function.
 .on('complete', function(){})
 'break' 'add' 'pause' etc..
 
+.concurrent( 2 ) 
