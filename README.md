@@ -1,0 +1,4 @@
+faqueue
+=======
+
+fully asynchronous queue
