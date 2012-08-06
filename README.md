@@ -22,43 +22,54 @@ A queue that calculates and outputs square roots, 3 per batch, with a 100ms dela
 Methods
 -------
 
-*.add( array )*
+__.add( array )__
 Add to the queue
 
-*.start()*
+__.start()__
 Start processing. Automatically called on creation
 
-*.cancel()*
+__.cancel()__
 Cancel current processing and clear the queue
 
-*.clear()*
+__.clear()__
 Clear the queue but continue to wait for new items
 
-*.pause()*
+__.pause()__
 Pause processing
 
-*.resume()*
+__.resume()__
 Resume processing
 
-*.on('complete', function(){})*
+__ .on('finish', function(){}) __
 'break' 'add' 'pause' etc..
 
-*.sort( function(a, b){} )*
+__.sort( function(a, b){} )__
 Sort the queue with function.
 
 
 Options
 -------
 
-each
+__each__
 
-per
+function to process each queue item
 
-rest
+__per__
 
-workers
+how many queue items to process in each batch
 
-timeout
+__rest__
+
+how long to rest in milliseconds between batches
+
+
+Todo
+----
+
+__workers__
+
+__timeout__
+
 
 Dependencies
 ------------
