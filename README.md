@@ -41,7 +41,13 @@ Sort the queue with function.
 // options
 
 add
+
 each
+
 do
+
 rest
+
 workers
+
+timeout
