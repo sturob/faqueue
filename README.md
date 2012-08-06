@@ -10,12 +10,14 @@ Example
 
 Create a queue that outputs items, 3 items per tick, with a 100ms delay between ticks.
 
-    var q = new Faqueue();
-    q.each( function(item, callback){ console.log(this); callback(); } )
-     .add( [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ] )
-     .do( 3 )
-     .rest( 100 )
      
+    var q = Faqueue({
+      each: function(item, callback){ console.log(this); callback(); },
+      add:  [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ],
+      do: 3,
+      rest: 100
+    })
+
 
 .cancel()
 Cancel current processing and clear the queue
@@ -35,4 +37,11 @@ Sort the queue with function.
 .on('complete', function(){})
 'break' 'add' 'pause' etc..
 
-.workers( 2 ) 
+
+// options
+
+add
+each
+do
+rest
+workers
