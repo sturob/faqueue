@@ -19,6 +19,9 @@ A queue that calculates and outputs square roots, 3 per batch, with a 100ms dela
     q.add([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]);
 
 
+Methods
+-------
+
 .add([])
 Add to the queue
 
@@ -41,8 +44,8 @@ Sort the queue with function.
 'break' 'add' 'pause' etc..
 
 
-// options
-
+Options
+-------
 
 each
 
@@ -53,3 +56,11 @@ rest
 workers
 
 timeout
+
+Dependencies
+------------
+
+underscore.js
+
+
+
