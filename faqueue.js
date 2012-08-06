@@ -9,19 +9,41 @@
 			workers: 1, timeout: null
 	  });
 
+	  this.running = false;
 	  this.queue = [];
+	};
 
-		this.length = function(){ 
-			return this.queue.length
-		};
+	fq.prototype.length = function(){ 
+		return this.queue.length;
+	};
 
-		this.add = function(arr) {
-			this.queue = this.queue.concat( arr );
-		};
+	fq.prototype.add = function(arr) {
+		this.queue = this.queue.concat( arr );
+		return this;
+	};
 
-		this.clear = function() {
-			this.queue = [];
+	fq.prototype.clear = function() {
+		this.queue = [];
+		return this;
+	};
+
+	fq.prototype.oneBatch = function(){
+		if (this.length() > 0) {
+			var queueHead = this.queue.splice(0, this.options.per);
+			var that = this;
+
+			_(queueHead).each(
+				this.options.each
+			);
+			_.delay( function(){ that.oneBatch() }, that.options.rest);
 		}
+	};
+
+	fq.prototype.start = function() {
+		this.running = true;
+
+		this.oneBatch();
+		return this;
 	};
 
 	if (typeof window != 'undefined') { // browser
