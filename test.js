@@ -60,7 +60,32 @@ describe('faqueue', function(){
 			q.add(arr).start();
 		});
 
+		it('should trigger start and finish events', function(callback) {
+			var q = new fq({rest: 100, per: 1 }),
+					n = 0,
+					inc = function() { n++ };
+
+			q.on('start', inc).on('finish', function () {
+				if (n == 1) { callback() }
+			}).start();
+		});
+
+		it('should be able to calculate some results', function(callback) {
+			var input   = [ 1, 2, 3, 4,  5 ],
+					desired = [ 2, 4, 6, 8, 10 ],
+					output  = [],
+					done = function() {
+						if (_.isEqual(desired, output)) callback();
+					};
+			var each = function(item, callback){
+				output.push(this * 2);
+			};
+			var q = new fq({ each: each, rest: 10, per: 1 });
+			q.add(input).on('finish', done).start();
+		});
 	});
+
+
 
 
 	
