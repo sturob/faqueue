@@ -40,7 +40,7 @@ Pause processing
 __.resume()__
 Resume processing
 
-__ .on('finish', function(){}) __
+__.on('finish', function(){})__
 'break' 'add' 'pause' etc..
 
 __.sort( function(a, b){} )__
