@@ -1,15 +1,6 @@
 var assert = require("assert");
 var _ = require('underscore');
 
-describe('Array', function(){
-  describe('#indexOf()', function(){
-    it('should return -1 when the value is not present', function(){
-      assert.equal(-1, [1,2,3].indexOf(5));
-      assert.equal(-1, [1,2,3].indexOf(0));
-    })
-  })
-});
-
 var fq = require('./faqueue');
 
 describe('faqueue', function(){
@@ -93,26 +84,41 @@ describe('faqueue', function(){
 
 			q.on('batch.start', inc).on('finish', finish).add(arr).start();
 		});
-
 	});
 
+	// describe('finish event', function() {
+	// 	it('should only be called once even when pausing', function(callback) {
+	// 		var q = new fq({rest: 1, per: 2 }),
+	// 				n = 0;
+
+	// 		q.add( Array( 2 )).on('finish', function(){n++}).start().pause();
+
+	// 		_.delay( q.resume, 10 );
+
+	// 		_.delay(function(){
+	// 			if (n <= 1) callback()
+	// 			else console.log('error finish event called ' + n + ' times')
+	// 		}, 1000); // hacky but can't rely on finish
+	// 	})
+	// });
 
 
+	describe('#pause() and #resume()', function(){
+		it('should stop and restart processing', function(callback) {
+			var now_a = Date.now(),
+					q = new fq({rest: 1, per: 10 }),
+					finish = function () { 
+						var now_b = Date.now();
+						if ((now_b - now_a) > 1000) callback();
+					};
 
-	
+			q.on('finish', finish).add( Array(8) ).start().pause();
 
-// describe('User', function(){
-//   describe('#save()', function(){
-//     it('should save without error', function(done){
-//       var user = new User('Luna');
-//       user.save(function(err){
-//         if (err) throw err;
-//         done();
-//       });
-//     })
-//   })
-// })
-
+			_.delay(function(){
+				q.resume()
+			}, 1000);
+		});
+	});
 
 
 });

@@ -37,6 +37,9 @@ Clear the queue but continue to wait for new items
 *.pause()*
 Pause processing
 
+*.resume()*
+Resume processing
+
 *.on('complete', function(){})*
 'break' 'add' 'pause' etc..
 
