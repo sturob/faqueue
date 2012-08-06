@@ -14,8 +14,19 @@
 		this.length = function(){ 
 			return this.queue.length
 		};
+
+		this.add = function(arr) {
+			this.queue = this.queue.concat( arr );
+		};
+
+		this.clear = function() {
+			this.queue = [];
+		}
 	};
 
-//	window.faqueue = new fq;
-	module.exports = fq;
+	if (typeof window != 'undefined') { // browser
+		window.faqueue = new fq;
+	}	else {
+		module.exports = fq;	
+	}
 })();

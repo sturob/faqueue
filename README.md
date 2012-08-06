@@ -13,11 +13,14 @@ A queue that calculates and outputs square roots, 3 per batch, with a 100ms dela
      
     var q = Faqueue({
       each: function(item, callback){ console.log( Math.sqrt(this) ); callback(); },
-      add:  [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ],
       per: 3,
       rest: 100
-    })
+    });
+    q.add([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]);
 
+
+.add([])
+Add to the queue
 
 .cancel()
 Cancel current processing and clear the queue
@@ -40,11 +43,10 @@ Sort the queue with function.
 
 // options
 
-add
 
 each
 
-do
+per
 
 rest
 
