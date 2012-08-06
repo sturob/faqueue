@@ -22,26 +22,26 @@ A queue that calculates and outputs square roots, 3 per batch, with a 100ms dela
 Methods
 -------
 
-.add([])
+*.add( array )*
 Add to the queue
 
-.cancel()
-Cancel current processing and clear the queue
-
-.clear()
-Clear the queue but continue to wait for new items
-
-.pause()
-Pause processing
-
-.start()
+*.start()*
 Start processing. Automatically called on creation
 
-.sort( function(a, b){} )
-Sort the queue with function.
+*.cancel()*
+Cancel current processing and clear the queue
 
-.on('complete', function(){})
+*.clear()*
+Clear the queue but continue to wait for new items
+
+*.pause()*
+Pause processing
+
+*.on('complete', function(){})*
 'break' 'add' 'pause' etc..
+
+*.sort( function(a, b){} )*
+Sort the queue with function.
 
 
 Options
