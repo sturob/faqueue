@@ -8,13 +8,13 @@ Like a $.lazyEach that you can add more items to.
 Example
 -------
 
-Create a queue that outputs items, 3 items per tick, with a 100ms delay between ticks.
+A queue that calculates and outputs square roots, 3 per batch, with a 100ms delay between each batch.
 
      
     var q = Faqueue({
-      each: function(item, callback){ console.log(this); callback(); },
+      each: function(item, callback){ console.log( Math.sqrt(this) ); callback(); },
       add:  [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ],
-      do: 3,
+      per: 3,
       rest: 100
     })
 
