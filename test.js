@@ -61,7 +61,7 @@ describe('faqueue', function(){
 		});
 
 		it('should trigger start and finish events', function(callback) {
-			var q = new fq({rest: 100, per: 1 }),
+			var q = new fq({rest: 10, per: 1 }),
 					n = 0,
 					inc = function() { n++ };
 
@@ -83,6 +83,17 @@ describe('faqueue', function(){
 			var q = new fq({ each: each, rest: 10, per: 1 });
 			q.add(input).on('finish', done).start();
 		});
+
+		it('should correctly handle the per option', function(callback) {
+			var q 	= new fq({rest: 0, per: 2 }),
+					n 	= 0,
+					inc = function() { n++ },
+					finish = function () { if (n == 5) callback() },
+					arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+
+			q.on('batch.start', inc).on('finish', finish).add(arr).start();
+		});
+
 	});
 
 

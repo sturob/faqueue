@@ -135,20 +135,30 @@
 
 	fq.prototype.add = function(arr) {
 		this.queue = this.queue.concat( arr );
+		this.trigger('add');
 		return this;
 	};
 
 	fq.prototype.clear = function() {
 		this.queue = [];
+		this.trigger('clear');
 		return this;
 	};
 
 	fq.prototype.oneBatch = function(){
 		if (this.length() > 0) {
-			var queueHead = this.queue.splice(0, this.options.per);
-			var that = this;
+			var head = this.queue.splice(0, this.options.per),
+					that = this;
 
-			_(queueHead).each(function(value){ that.options.each.call(value) });
+			that.trigger('batch.start');
+
+			_(head).each(function(value){ 
+				that.options.each.call(value)
+			});
+
+			that.trigger('batch.end');
+
+			this.trigger('rest');
 			_.delay( function(){ that.oneBatch() }, that.options.rest);
 		} else {
 			this.trigger('finish');
