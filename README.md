@@ -13,8 +13,8 @@ Create a queue that outputs items, 3 items per tick, with a 100ms delay between 
     var q = new Faqueue();
     q.each( function(item, callback){ console.log(this); callback(); } )
      .add( [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ] )
-     .perTick( 3 )
-     .breakTime( 100 )
+     .do( 3 )
+     .rest( 100 )
      
 
 .cancel()
@@ -35,4 +35,4 @@ Sort the queue with function.
 .on('complete', function(){})
 'break' 'add' 'pause' etc..
 
-.concurrent( 2 ) 
+.workers( 2 ) 
