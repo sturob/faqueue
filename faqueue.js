@@ -189,9 +189,14 @@
 		return this;
 	};
 
+	var faqueue = function(options) { 
+		return new fq(options)
+	};
+
 	if (typeof window != 'undefined') { // browser
-		window.faqueue = fq;
+		window.faqueue = faqueue;
 	}	else {
-		module.exports = fq;	
+		module.exports = faqueue;	
 	}
 })();
+

@@ -5,7 +5,7 @@ var fq = require('./faqueue');
 
 describe('faqueue', function(){
 	it('should set some default options', function(){
-		var q = new fq();
+		var q = fq();
 		assert.ok(q.options.per);
 		assert.ok(q.options.rest);
 		assert.ok(q.options.each);
@@ -13,30 +13,54 @@ describe('faqueue', function(){
 
 	it('should set options from initialisation', function(){
 		var ops = { per: 10, rest: 100, each: function(){return false} };
-		var q = new fq( ops );
+		var q = fq( ops );
 		assert.equal(ops.per, q.options.per);
 		assert.equal(ops.rest, q.options.rest);
 		assert.equal(ops.each, q.options.each);
 	});
 
 	it('#length() should return the queue length', function(){
-		var q = new fq();
+		var q = fq();
 		assert.equal(q.length(), 0);
 	});
 
 	describe('#add()', function(){
 		it('should add elements to the queue', function() {
-			var q = new fq();
+			var q = fq();
 			q.add([1,2,3]);
 			assert.equal(q.length(), 3);
 			q.add([4,5,6]);
 			assert.equal(q.length(), 6);
-		})
+		});
+
+		it('should add elements while queue is processing', function(callback) {
+			var q = fq({ each: function() { result.push(this) } }),
+					result = [];
+
+			q.on('finish', function(){
+				if (_.isEqual([1, 2, 3, 4, 5, 6], result)) callback();
+			}).add([1,2,3]).start();
+
+			q.add([4,5,6]);
+		});
+
+
+		it('should add elements while queue is processing', function(callback) {
+			var q = fq({ each: function() { result.push(this) } }),
+					result = [];
+
+			q.on('finish', function(){
+				if (_.isEqual([1, 2, 3, 4, 5, 6], result)) callback();
+			}).add([1,2,3]).start();
+
+			q.add([4,5,6]);
+		});
+
 	});
 
 	describe('#clear()', function(){
 		it('should empty the queue', function() {
-			var q = new fq();
+			var q = fq();
 			q.add([1,2,3]);
 			q.clear();
 			assert.equal(q.length(), 0);
@@ -47,12 +71,12 @@ describe('faqueue', function(){
 		it('should start processing the queue', function(callback) {
 			var arr = [ 1, 2, 3, 4, 5 ]; 
 			var five = _.after(arr.length, function(){ callback() })
-			var q = new fq({ each: five, rest: 100, per: 1 });
+			var q = fq({ each: five, rest: 100, per: 1 });
 			q.add(arr).start();
 		});
 
 		it('should trigger start and finish events', function(callback) {
-			var q = new fq({rest: 10, per: 1 }),
+			var q = fq({rest: 10, per: 1 }),
 					n = 0,
 					inc = function() { n++ };
 
@@ -71,12 +95,12 @@ describe('faqueue', function(){
 			var each = function(item, callback){
 				output.push(this * 2);
 			};
-			var q = new fq({ each: each, rest: 10, per: 1 });
+			var q = fq({ each: each, rest: 10, per: 1 });
 			q.add(input).on('finish', done).start();
 		});
 
 		it('should correctly handle the per option', function(callback) {
-			var q 	= new fq({rest: 0, per: 2 }),
+			var q 	= fq({rest: 0, per: 2 }),
 					n 	= 0,
 					inc = function() { n++ },
 					finish = function () { if (n == 5) callback() },
@@ -86,32 +110,16 @@ describe('faqueue', function(){
 		});
 	});
 
-	// describe('finish event', function() {
-	// 	it('should only be called once even when pausing', function(callback) {
-	// 		var q = new fq({rest: 1, per: 2 }),
-	// 				n = 0;
-
-	// 		q.add( Array( 2 )).on('finish', function(){n++}).start().pause();
-
-	// 		_.delay( q.resume, 10 );
-
-	// 		_.delay(function(){
-	// 			if (n <= 1) callback()
-	// 			else console.log('error finish event called ' + n + ' times')
-	// 		}, 1000); // hacky but can't rely on finish
-	// 	})
-	// });
 
 
 	describe('#pause() and #resume()', function(){
 		it('should stop and restart processing', function(callback) {
 			var now_a = Date.now(),
-					q = new fq({rest: 1, per: 10 }),
+					q = fq({rest: 1, per: 10 }),
 					finish = function () { 
 						var now_b = Date.now();
 						if ((now_b - now_a) > 1000) callback();
 					};
-
 			q.on('finish', finish).add( Array(8) ).start().pause();
 
 			_.delay(function(){
@@ -119,6 +127,9 @@ describe('faqueue', function(){
 			}, 1000);
 		});
 	});
+
+
+	// describe('')
 
 
 });
