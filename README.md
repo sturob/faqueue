@@ -1,5 +1,5 @@
-faqueue
-=======
+faqueue.js
+==========
 
 A fully asynchronous queue. Stop the browser locking up when processing long arrays. 
 
@@ -31,6 +31,8 @@ Time passes
 
 Options
 -------
+
+Passed in on initialisation.
 
 __each__
 
