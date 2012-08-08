@@ -12,8 +12,8 @@ A queue that calculates and outputs square roots, 3 per batch, with a 100ms dela
 
     var options = {
       each: function(done){ console.log( Math.sqrt(this) ); done() },
-      per:  3,
-      rest: 100
+      perBatch:  3,
+      batchRest: 100
     };
 
     var q = faqueue(options).add([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]);
@@ -26,11 +26,11 @@ __each__
 
 function to process each queue item
 
-__per__
+__perBatch__
 
 how many queue items to process in each batch
 
-__rest__
+__batchRest__
 
 how long to rest in milliseconds between batches
 
