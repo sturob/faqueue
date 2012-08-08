@@ -189,7 +189,16 @@
   };
 
   fq.prototype.oneBatch = function(){
-    var that = this;
+    var that = this,
+        async = (that.options.each.length > 0);
+
+      function batchDone() {
+        that.trigger('rest');
+        that.resting = true;
+        // rest and then recurse using setTimeout (so don't worry about the stack)
+        that.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.restTime);
+      }
+      var multidone = _.after( this.options.perBatch, batchDone );
 
     this.batchTimeout = null;
     this.resting = false;
@@ -207,15 +216,18 @@
       this.counts.batch++;
       this.trigger('batch');
 
-      _(head).each(function(value){ 
-        that.options.each.call(value);
+      _(head).each(function(value){
+        if (async) {
+          that.options.each.call(value, multidone);
+          // callback needed
+        } else {
+          that.options.each.call(value);
+        }
+
         that.counts.each++;
       });
 
-      this.trigger('rest');
-      this.resting = true;
-      // rest and then recurse using setTimeout (so don't worry about the stack)
-      this.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.restTime);
+      if (! async) batchDone();
     } else {
       if (! this.waiting) this.trigger('wait');
       this.waiting = true;

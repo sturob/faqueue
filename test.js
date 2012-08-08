@@ -40,7 +40,7 @@ describe('faqueue', function(){
 
       q.on('wait', function(){
         if (_.isEqual([1, 2, 3, 4, 5, 6], result)) ok();
-      }).add([1,2,3]).start();
+      }).add([1,2,3]);
 
       q.add([4,5,6]);
     });
@@ -53,7 +53,7 @@ describe('faqueue', function(){
 
       q.on('wait', function(){
         if (_.isEqual([1, 2, 3, 4, 5, 6], result)) ok();
-      }).add([1,2,3]).start();
+      }).add([1,2,3]);
 
       _.delay(function() { q.add([4,5,6]).resume() }, 300);
     });
@@ -74,18 +74,17 @@ describe('faqueue', function(){
     it('should automatically start processing the queue', function(ok) {
       var arr = [ 1, 2, 3, 4, 5 ]; 
       var five = _.after(arr.length, function(){ ok() })
-      var q = fq({ each: five, restTime: 100, perBatch: 1 });
-      q.add(arr);
+      fq({ each: five, restTime: 100, perBatch: 1 }).add(arr);
     });
 
     it('should trigger start and wait events', function(ok) {
-      var q = fq({restTime: 10, perBatch: 1 }),
-          n = 0,
+      var q   = fq({restTime: 10, perBatch: 1 }),
+          n   = 0,
           inc = function() { n++ };
 
       q.on('start', inc).on('wait', function () {
         if (n == 1) { ok() }
-      }).start();
+      }).add([]);
     });
 
     it('should be able to calculate some results', function(ok) {
@@ -95,11 +94,12 @@ describe('faqueue', function(){
           done = function() {
             if (_.isEqual(desired, output)) ok();
           };
-      var each = function(item, ok){
+      var each = function(yup){
         output.push(this * 2);
+        yup();
       };
       fq({ each: each, restTime: 10, perBatch: 1 })
-        .add(input).on('wait', done).start();
+        .add(input).on('wait', done);
     });
 
     it('should correctly handle the perBatch option', function(ok) {
@@ -166,7 +166,16 @@ describe('faqueue', function(){
   });
 
 
-  //describe('each should work asyncronously with a callback once completed');
+  describe('each parameter', function () {
+    it("should work asyncronously with a callback once complete", function (ok) {
+      fq({
+        restTime: 0, perBatch: 1, 
+        each: function(done){ setTimeout(done, 100) }
+      }).add([1,2,3]).on('wait', function(){
+        if (this.getStats().each == 3) ok()
+      })
+    }) 
+  });
 
 });
 
