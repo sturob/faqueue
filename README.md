@@ -5,6 +5,8 @@ A fully asynchronous queue. Stop the browser locking up when processing long arr
 
 Asynchronously evaluate an array while modifying it. Like $.lazyEach but you can add items to it anytime. 
 
+Method chaining is supported.
+
 Example
 -------
 
@@ -32,15 +34,15 @@ Options
 
 __each__
 
-function to process each queue item
+A function to process each queue item. *this* will be the queue item.
 
 __perBatch__
 
-how many queue items to process in each batch
+How many queue items to process in each batch.
 
 __restTime__
 
-how long to rest in milliseconds between batches
+How long to rest in milliseconds between batches.
 
 
 
@@ -49,55 +51,45 @@ Methods
 
 __.add( array )__
 
-Add to the queue
+Add an array to the end of the queue.
 
 __.reset()__
 
-Clear the queue and reset statistics
+Clear the queue and reset statistics.
 
 __.clear()__
 
-Clear the queue but continue to wait for new items
+Clear the queue but continue to wait for new items.
 
 __.pause()__
 
-Pause processing
+Pause processing.
 
 __.resume()__
 
-Resume processing
+Resume processing.
 
 __.on('eventname', function(){})__
 
-Subscribe to events
+Subscribe to events.
 
 __.getStats()__
 
-Returns an object with add, each and batch counts.
+Return an object with add, each and batch counts.
 
 
 Events
 ------
 
-add
+Method events (add, reset, clear, pause, resume) are fired when those methods are called.
 
-reset
+Internal events are more useful:
 
-batch
+* batch: a batch is about to be processed
 
-rest
+* rest: started resting between batches
 
-clear
-
-wait
-
-pause
-
-resume
-
-
-
-
+* wait: the queue has been emptied by processing
 
 
 Todo
