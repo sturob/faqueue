@@ -33,13 +33,13 @@ describe('faqueue', function(){
       assert.equal(q.length(), 6);
     });
 
-    it('should add elements while queue is processing', function(callback) {
+    it('should add elements while queue is processing', function(ok) {
       var q = fq({ each: function() { result.push(this) }, per: 1, rest: 100 }),
           result = [];
 
 //      q.on('all',function(ev){ console.log(ev); console.log(this.counts) })
       q.on('wait', function(){
-        if (_.isEqual([1, 2, 3, 4, 5, 6], result)) callback();
+        if (_.isEqual([1, 2, 3, 4, 5, 6], result)) ok();
       }).add([1,2,3]).start();
 
       q.add([4,5,6]);
@@ -47,12 +47,12 @@ describe('faqueue', function(){
 
 
 
-    it('should process added elements if queue is done processing', function(callback) {
+    it('should process added elements if queue is done processing', function(ok) {
       var q = fq({ each: function() { result.push(this) } }),
           result = [];
 
       q.on('wait', function(){
-        if (_.isEqual([1, 2, 3, 4, 5, 6], result)) callback();
+        if (_.isEqual([1, 2, 3, 4, 5, 6], result)) ok();
       }).add([1,2,3]).start();
 
       _.delay(function() { q.add([4,5,6]).resume() }, 300);
@@ -71,40 +71,40 @@ describe('faqueue', function(){
   });
 
   describe('#start()', function(){
-    it('should automatically start processing the queue', function(callback) {
+    it('should automatically start processing the queue', function(ok) {
       var arr = [ 1, 2, 3, 4, 5 ]; 
-      var five = _.after(arr.length, function(){ callback() })
+      var five = _.after(arr.length, function(){ ok() })
       var q = fq({ each: five, rest: 100, per: 1 });
       q.add(arr);
     });
 
-    it('should trigger start and wait events', function(callback) {
+    it('should trigger start and wait events', function(ok) {
       var q = fq({rest: 10, per: 1 }),
           n = 0,
           inc = function() { n++ };
 
       q.on('start', inc).on('wait', function () {
-        if (n == 1) { callback() }
+        if (n == 1) { ok() }
       }).start();
     });
 
-    it('should be able to calculate some results', function(callback) {
+    it('should be able to calculate some results', function(ok) {
       var input   = [ 1, 2, 3, 4,  5 ],
           desired = [ 2, 4, 6, 8, 10 ],
           output  = [],
           done = function() {
-            if (_.isEqual(desired, output)) callback();
+            if (_.isEqual(desired, output)) ok();
           };
-      var each = function(item, callback){
+      var each = function(item, ok){
         output.push(this * 2);
       };
       fq({ each: each, rest: 10, per: 1 })
         .add(input).on('wait', done).start();
     });
 
-    it('should correctly handle the per option', function(callback) {
+    it('should correctly handle the per option', function(ok) {
       var q   = fq({rest: 0, per: 2 }),
-          wait = function () { if (q.getStats().batch == 5) callback() },
+          wait = function () { if (q.getStats().batch == 5) ok() },
           arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 
       q.on('wait', wait).add(arr);
@@ -119,7 +119,7 @@ describe('faqueue', function(){
 
       _.delay(function(){
         if (q.getStats().each == 0) ok()
-      }, 500)
+      }, 500);
     })
   });
   
@@ -140,6 +140,21 @@ describe('faqueue', function(){
   });
 
 
+  describe('#clear()', function() {
+    it('should clear the queue but leave it running', function(ok) {
+      var q = fq({ rest: 100, per: 1 });
+      q.add( "1234567890".split('') ).on('wait', function(){
+        var stats = q.getStats();
+        if (stats.each >= 8 && q.length() == 0) ok();
+      });
+
+      _.delay(function(){ q.clear() }, 500);
+      _.delay(function(){ q.add([1, 2, 3]) }, 600); 
+    });
+  });
+
+
+  //describe('each should work asyncronously with a callback once completed');
 
 });
 
