@@ -125,15 +125,15 @@
   //   inbatch: processing a batch
   //   waiting: queue empty, waiting for more to be added
 
-  var fq = function(options){
-    this.init( options || {});
+  var fq = function(options) {
+    this.init( options || {} );
   };
 
   fq.prototype.init = function(options) {
     this.options = _.defaults(options, {
       each: function() {},
       perBatch:    25, restTime:    10,
-      workers: 1, timeout: null
+//    workers: 1, timeout: null
     });
 
     _.extend(this, Events);
@@ -214,6 +214,7 @@
 
       this.trigger('rest');
       this.resting = true;
+      // rest and then recurse using setTimeout (so don't worry about the stack)
       this.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.restTime);
     } else {
       if (! this.waiting) this.trigger('wait');
@@ -222,7 +223,6 @@
   };
 
   fq.prototype.start = function() {
-    //if (this.waiting) return this; // already going
     this.waiting = false;
     this.trigger('start');
     this.oneBatch();
@@ -240,7 +240,7 @@
   if (typeof window != 'undefined') { // browser
     window.faqueue = faqueue;
   } else {
-    module.exports = faqueue; 
+    module.exports = faqueue;
   }
 })();
 
