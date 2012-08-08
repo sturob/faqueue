@@ -214,7 +214,7 @@
 
       this.trigger('rest');
       this.resting = true;
-      this.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.rest);
+      this.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.restTime);
     } else {
       if (! this.waiting) this.trigger('wait');
       this.waiting = true;
