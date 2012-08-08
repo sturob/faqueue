@@ -113,7 +113,10 @@
     }
   };
 
-  var _ = require('underscore');
+  if (typeof _ == 'undefined' && typeof require != 'undefined') {
+    _ = require('underscore');  
+  }
+  
 
 
   // States
@@ -123,9 +126,13 @@
   //   waiting: queue empty, waiting for more to be added
 
   var fq = function(options){
-    this.options = _.defaults(options||{}, {
+    this.init( options || {});
+  };
+
+  fq.prototype.init = function(options) {
+    this.options = _.defaults(options, {
       each: function() {},
-      per:    25, rest:    10,
+      perBatch:    25, restTime:    10,
       workers: 1, timeout: null
     });
 
@@ -140,7 +147,7 @@
     };
 
     this.queue = [];
-  };
+  }
 
   fq.prototype.length = function(){
     return this.queue.length;
@@ -160,6 +167,12 @@
   fq.prototype.clear = function() {
     this.queue = [];
     this.trigger('clear');
+    return this;
+  };
+
+  fq.prototype.reset = function() {
+    this.init( this.options );
+    this.trigger('reset');
     return this;
   };
 
@@ -189,7 +202,7 @@
     }
 
     if (this.length() > 0) {
-      var head = this.queue.splice(0, this.options.per);
+      var head = this.queue.splice(0, this.options.perBatch);
 
       this.counts.batch++;
       this.trigger('batch');
