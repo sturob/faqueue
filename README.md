@@ -3,7 +3,7 @@ faqueue
 
 A fully asynchronous queue. Stop the browser locking up when processing long arrays. 
 
-Asynchronously evaluate the queue while simultaneously modifying it. Like $.lazyEach but you can continue to add more items to it. 
+Asynchronously evaluate the queue while modifying it. Like $.lazyEach but you can add items to it anytime. 
 
 Example
 -------
