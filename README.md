@@ -10,13 +10,13 @@ Example
 
 A queue that calculates and outputs square roots, 3 per batch, with a 100ms delay between each batch.
 
-     
-    var q = Faqueue({
-      each: function(item, callback){ console.log( Math.sqrt(this) ); callback(); },
-      per: 3,
+    var each = function(done){ console.log( Math.sqrt(this) ); done() };
+
+    var q = faqueue({
+      each: each,
+      per:  3,
       rest: 100
-    });
-    q.add([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]);
+    }).add([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]).start();
 
 
 Methods
@@ -40,11 +40,9 @@ Pause processing
 __.resume()__
 Resume processing
 
-__.on('finish', function(){})__
+__.on('wait', function(){})__
 'break' 'add' 'pause' etc..
 
-__.sort( function(a, b){} )__
-Sort the queue with function.
 
 
 Options
@@ -65,6 +63,9 @@ how long to rest in milliseconds between batches
 
 Todo
 ----
+
+__.sort( function(a, b){} )__
+Sort the queue with function.
 
 __workers__
 

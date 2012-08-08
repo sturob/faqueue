@@ -1,5 +1,6 @@
 (function(){
 
+	// Events from Backbone.js
 
   var slice = Array.prototype.slice;
   var splice = Array.prototype.splice;
@@ -112,30 +113,47 @@
     }
   };
 
-
-
 	var _ = require('underscore');
+
+
+	// States
+	//   paused: processing paused
+	//   resting: resting between batches
+	//   inbatch: processing a batch
+	//   waiting: queue empty, waiting for more to be added
 
 	var fq = function(options){
 	  this.options = _.defaults(options||{}, {
 			each: function() {},
-			per:    25, rest:    100,
+			per:    25, rest:    10,
 			workers: 1, timeout: null
 	  });
 
 	  _.extend(this, Events);
 
-	  this.running = false;
+	  this.resting = false;
+	  this.paused  = false;
+	  this.waiting = true;
+
+	  this.counts = {
+	  	queued: 0, each: 0, batch: 0
+	  };
+
 	  this.queue = [];
 	};
 
-	fq.prototype.length = function(){ 
+	fq.prototype.length = function(){
 		return this.queue.length;
 	};
 
 	fq.prototype.add = function(arr) {
+    var that = this;
 		this.queue = this.queue.concat( arr );
-		this.trigger('add');
+    this.counts.queued += arr.length;
+    this.trigger('add');
+		if (this.waiting && ! this.paused && ! this.resting) {
+      _.delay(function(){ that.start() }, 0);
+		}
 		return this;
 	};
 
@@ -146,48 +164,61 @@
 	};
 
 	fq.prototype.pause = function(){
-		this.running = false;
+		this.trigger('pause');
+		this.paused = true;
 		return this;
-	}
+	};
 
 	fq.prototype.resume = function(){
-		this.running = true;
+		this.trigger('resume');
+		this.paused = false;
 		return this;
-	}
+	};
 
 	fq.prototype.oneBatch = function(){
 		var that = this;
 
-		if (! this.running) {
-			_.delay( function(){ that.oneBatch() }, 10);
+		this.batchTimeout = null;
+    this.resting = false;
+
+		if (this.paused) {
+			this.pauseTimeout = _.delay( function(){ that.oneBatch() }, 10);
 			return;
+		} else {
+			this.pauseTimeout = null;
 		}
 
 		if (this.length() > 0) {
 			var head = this.queue.splice(0, this.options.per);
 
-			that.trigger('batch.start');
+      this.counts.batch++;
+			this.trigger('batch');
 
 			_(head).each(function(value){ 
-				that.options.each.call(value)
+				that.options.each.call(value);
+        that.counts.each++;
 			});
 
-			that.trigger('batch.end');
-
 			this.trigger('rest');
-
-			_.delay( function(){ that.oneBatch() }, that.options.rest);
+      this.resting = true;
+			this.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.rest);
 		} else {
-			this.trigger('finish');
+      if (! this.waiting) this.trigger('wait');
+			this.waiting = true;
 		}
 	};
 
 	fq.prototype.start = function() {
-		this.running = true;
-		this.trigger('start')
+    //if (this.waiting) return this; // already going
+		this.waiting = false;
+		this.trigger('start');
 		this.oneBatch();
 		return this;
 	};
+
+  fq.prototype.getStats = function() {
+    return this.counts;
+  };
 
 	var faqueue = function(options) { 
 		return new fq(options)
