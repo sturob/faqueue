@@ -1,6 +1,6 @@
 (function(){
 
-	// Events from Backbone.js
+  // Events from Backbone.js
 
   var slice = Array.prototype.slice;
   var splice = Array.prototype.splice;
@@ -113,121 +113,121 @@
     }
   };
 
-	var _ = require('underscore');
+  var _ = require('underscore');
 
 
-	// States
-	//   paused: processing paused
-	//   resting: resting between batches
-	//   inbatch: processing a batch
-	//   waiting: queue empty, waiting for more to be added
+  // States
+  //   paused: processing paused
+  //   resting: resting between batches
+  //   inbatch: processing a batch
+  //   waiting: queue empty, waiting for more to be added
 
-	var fq = function(options){
-	  this.options = _.defaults(options||{}, {
-			each: function() {},
-			per:    25, rest:    10,
-			workers: 1, timeout: null
-	  });
+  var fq = function(options){
+    this.options = _.defaults(options||{}, {
+      each: function() {},
+      per:    25, rest:    10,
+      workers: 1, timeout: null
+    });
 
-	  _.extend(this, Events);
+    _.extend(this, Events);
 
-	  this.resting = false;
-	  this.paused  = false;
-	  this.waiting = true;
+    this.resting = false;
+    this.paused  = false;
+    this.waiting = true;
 
-	  this.counts = {
-	  	queued: 0, each: 0, batch: 0
-	  };
+    this.counts = {
+      queued: 0, each: 0, batch: 0
+    };
 
-	  this.queue = [];
-	};
+    this.queue = [];
+  };
 
-	fq.prototype.length = function(){
-		return this.queue.length;
-	};
+  fq.prototype.length = function(){
+    return this.queue.length;
+  };
 
-	fq.prototype.add = function(arr) {
+  fq.prototype.add = function(arr) {
     var that = this;
-		this.queue = this.queue.concat( arr );
+    this.queue = this.queue.concat( arr );
     this.counts.queued += arr.length;
     this.trigger('add');
-		if (this.waiting && ! this.paused && ! this.resting) {
+    if (this.waiting && ! this.paused && ! this.resting) {
       _.delay(function(){ that.start() }, 0);
-		}
-		return this;
-	};
+    }
+    return this;
+  };
 
-	fq.prototype.clear = function() {
-		this.queue = [];
-		this.trigger('clear');
-		return this;
-	};
+  fq.prototype.clear = function() {
+    this.queue = [];
+    this.trigger('clear');
+    return this;
+  };
 
-	fq.prototype.pause = function(){
-		this.trigger('pause');
-		this.paused = true;
-		return this;
-	};
+  fq.prototype.pause = function(){
+    this.trigger('pause');
+    this.paused = true;
+    return this;
+  };
 
-	fq.prototype.resume = function(){
-		this.trigger('resume');
-		this.paused = false;
-		return this;
-	};
+  fq.prototype.resume = function(){
+    this.trigger('resume');
+    this.paused = false;
+    return this;
+  };
 
-	fq.prototype.oneBatch = function(){
-		var that = this;
+  fq.prototype.oneBatch = function(){
+    var that = this;
 
-		this.batchTimeout = null;
+    this.batchTimeout = null;
     this.resting = false;
 
-		if (this.paused) {
-			this.pauseTimeout = _.delay( function(){ that.oneBatch() }, 10);
-			return;
-		} else {
-			this.pauseTimeout = null;
-		}
+    if (this.paused) {
+      this.pauseTimeout = _.delay( function(){ that.oneBatch() }, 10);
+      return;
+    } else {
+      this.pauseTimeout = null;
+    }
 
-		if (this.length() > 0) {
-			var head = this.queue.splice(0, this.options.per);
+    if (this.length() > 0) {
+      var head = this.queue.splice(0, this.options.per);
 
       this.counts.batch++;
-			this.trigger('batch');
+      this.trigger('batch');
 
-			_(head).each(function(value){ 
-				that.options.each.call(value);
+      _(head).each(function(value){ 
+        that.options.each.call(value);
         that.counts.each++;
-			});
+      });
 
-			this.trigger('rest');
+      this.trigger('rest');
       this.resting = true;
-			this.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.rest);
-		} else {
+      this.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.rest);
+    } else {
       if (! this.waiting) this.trigger('wait');
-			this.waiting = true;
-		}
-	};
+      this.waiting = true;
+    }
+  };
 
-	fq.prototype.start = function() {
+  fq.prototype.start = function() {
     //if (this.waiting) return this; // already going
-		this.waiting = false;
-		this.trigger('start');
-		this.oneBatch();
-		return this;
-	};
+    this.waiting = false;
+    this.trigger('start');
+    this.oneBatch();
+    return this;
+  };
 
   fq.prototype.getStats = function() {
     return this.counts;
   };
 
-	var faqueue = function(options) { 
-		return new fq(options)
-	};
+  var faqueue = function(options) { 
+    return new fq(options)
+  };
 
-	if (typeof window != 'undefined') { // browser
-		window.faqueue = faqueue;
-	}	else {
-		module.exports = faqueue;	
-	}
+  if (typeof window != 'undefined') { // browser
+    window.faqueue = faqueue;
+  } else {
+    module.exports = faqueue; 
+  }
 })();
 
