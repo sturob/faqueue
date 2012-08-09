@@ -34,8 +34,8 @@ Options
 
 Passed in on initialisation.
 
-__each__
-A function to process each queue item. *this* will be the queue item.
+__each([callback])__
+A function to process each queue item. *this* will be the queue item. If the function has a callback, that callback will be run to indicate the function is complete. 
 
 __perBatch__
 How many queue items to process in each batch.
