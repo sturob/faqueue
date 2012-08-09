@@ -36,7 +36,7 @@ Methods
 
 __.options( object )__
 
-* __each([callback])__
+__each: function([callback])__
 
 A function to process each queue item. Inside the function *this* will be the current queue item. 
 
@@ -44,11 +44,11 @@ If the function definition receives a parameter, the function is expected to run
 
 If the function returns a callback, that callback is used to cancel any pending processing if .cancel() is called.
 
-* __perBatch__
+__perBatch: integer__
 
 How many queue items to process in each batch.
 
-* __restTime__
+__restTime: integer__
 
 How long to rest in milliseconds between batches.
 
