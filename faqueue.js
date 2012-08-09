@@ -130,11 +130,7 @@
   };
 
   fq.prototype.init = function(options) {
-    this.options = _.defaults(options, {
-      each: function() {},
-      perBatch:    25, restTime:    10,
-//    workers: 1, timeout: null
-    });
+    this.options( options );
 
     _.extend(this, Events);
 
@@ -147,6 +143,14 @@
     };
 
     this.queue = [];
+  }
+
+  fq.prototype.options = function(options){
+    this._options = _.defaults( options, {
+      each: function() {},
+      perBatch: 25,  restTime: 10 // workers: 1, timeout: null
+    });
+    return this;
   }
 
   fq.prototype.length = function(){
@@ -171,7 +175,7 @@
   };
 
   fq.prototype.reset = function() {
-    this.init( this.options );
+    this.init( this._options );
     this.trigger('reset');
     return this;
   };
@@ -189,16 +193,15 @@
   };
 
   fq.prototype.oneBatch = function(){
-    var that = this,
-        async = (that.options.each.length > 0);
-
-      function batchDone() {
-        that.trigger('rest');
-        that.resting = true;
-        // rest and then recurse using setTimeout (so don't worry about the stack)
-        that.batchTimeout = _.delay( function(){ that.oneBatch() }, that.options.restTime);
-      }
-      var multidone = _.after( this.options.perBatch, batchDone );
+    var that  = this,
+        async = (that._options.each.length > 0),
+        batchDone = function() {
+          that.trigger('rest');
+          that.resting = true;
+          // rest and then recurse using setTimeout (so don't worry about the stack)
+          that.batchTimeout = _.delay( function(){ that.oneBatch() }, that._options.restTime);
+        },
+        multidone = _.after( this._options.perBatch, batchDone );
 
     this.batchTimeout = null;
     this.resting = false;
@@ -211,17 +214,17 @@
     }
 
     if (this.length() > 0) {
-      var head = this.queue.splice(0, this.options.perBatch);
+      var head = this.queue.splice(0, this._options.perBatch);
 
       this.counts.batch++;
       this.trigger('batch');
 
       _(head).each(function(value){
         if (async) {
-          that.options.each.call(value, multidone);
+          that._options.each.call(value, multidone);
           // callback needed
         } else {
-          that.options.each.call(value);
+          that._options.each.call(value);
         }
 
         that.counts.each++;

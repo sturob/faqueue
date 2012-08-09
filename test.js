@@ -5,25 +5,79 @@ var fq = require('./faqueue');
 
 
 describe('faqueue', function(){
-  it('should set some default options', function(){
-    var q = fq().pause();
-    assert.ok( q.options.perBatch );
-    assert.ok( q.options.restTime );
-    assert.ok( q.options.each );
+
+  describe('options:', function () {
+    it('should have defaults', function(){
+      var q = fq().pause();
+      assert.ok( q._options.perBatch );
+      assert.ok( q._options.restTime );
+      assert.ok( q._options.each );
+    });
+
+    it('should be set from initialisation', function(){
+      var ops = { perBatch: 10, restTime: 100, each: function(){ return false } },
+          q   = fq( ops );
+      assert.equal( ops.perBatch,  q._options.perBatch  );
+      assert.equal( ops.restTime,  q._options.restTime );
+      assert.equal( ops.each,      q._options.each );
+    });
+
+
+    it('can be set with options()', function(){
+      var ops = { perBatch: 10, restTime: 100, each: function(){ return false } },
+          q   = fq().options(ops);
+      assert.equal( ops.perBatch,  q._options.perBatch  );
+      assert.equal( ops.restTime,  q._options.restTime );
+      assert.equal( ops.each,      q._options.each );
+    });
+    
+    it("'each' should work syncronously without a callback", function (ok) {
+      fq({
+        restTime: 0, perBatch: 1, 
+        each: function(){ }
+      }).add([1,2,3]).on('wait', function(){
+        if (this.getStats().each == 3) ok()
+      })
+    });
+
+    it("'each' should work asyncronously with a callback once complete", function (ok) {
+      fq({
+        restTime: 0, perBatch: 1, 
+        each: function(done){ setTimeout(done, 100) }
+      }).add([1,2,3]).on('wait', function(){
+        if (this.getStats().each == 3) ok()
+      })
+    });
+  
+    // it("if 'each' returns a function, call that function on .cancel()", function (ok) {
+    //   fq({
+    //     restTime: 10, perBatch: 1, 
+    //     each: function(done){ 
+    //       var timeId = setTimeout(
+    //                       function(){
+    //                         console.log('shouldnt see me');
+    //                         done();
+    //                       }, 100);
+    //       return function(){ clearTimeout(timeId) }
+    //     }
+    //   }).add([1,2,3]).on('wait', function(){
+    //     if (this.getStats().each == 3) ok()
+    //   })
+    // });
+
+
+    it("'restTime' should cause resting between batches")
+
+    it("'perBatch' should cause N processing per batches")
+
   });
 
-  it('should set options from initialisation', function(){
-    var ops = { perBatch: 10, restTime: 100, each: function(){ return false } };
-    var q = fq( ops );
-    assert.equal( ops.perBatch,  q.options.perBatch  );
-    assert.equal( ops.restTime,  q.options.restTime );
-    assert.equal( ops.each,      q.options.each );
-  });
-
+  
   it('#length() should return the queue length', function(){
     assert.equal( fq().length(), 0 );
     assert.equal( fq().add([1,2,3]).pause().length(), 3 );
   });
+
 
   describe('#add()', function(){
     it('should add elements to the queue', function() {
@@ -44,8 +98,6 @@ describe('faqueue', function(){
 
       q.add([4,5,6]);
     });
-
-
 
     it('should process added elements if queue is done processing', function(ok) {
       var q = fq({ each: function() { result.push(this) } }),
@@ -71,7 +123,7 @@ describe('faqueue', function(){
   });
 
   describe('#start()', function(){
-    it('should automatically start processing the queue', function(ok) {
+    it('should be called automatically', function(ok) {
       var arr = [ 1, 2, 3, 4, 5 ]; 
       var five = _.after(arr.length, function(){ ok() })
       fq({ each: five, restTime: 100, perBatch: 1 }).add(arr);
@@ -119,14 +171,14 @@ describe('faqueue', function(){
 
       _.delay(function(){
         if (q.getStats().each == 0) ok()
-      }, 500);
+      }, 100);
     })
   });
   
   describe('#resume()', function(){
     it('should unpause processing', function(ok) {
       var now_a = Date.now(),
-          q = fq({restTime: 1, perBatch: 10 }),
+          q = fq({ restTime: 1, perBatch: 10 }),
           wait = function () {
             var now_b = Date.now();
             if (q.getStats().each == 8 && (now_b - now_a) > 1000) ok();
@@ -166,16 +218,7 @@ describe('faqueue', function(){
   });
 
 
-  describe('each parameter', function () {
-    it("should work asyncronously with a callback once complete", function (ok) {
-      fq({
-        restTime: 0, perBatch: 1, 
-        each: function(done){ setTimeout(done, 100) }
-      }).add([1,2,3]).on('wait', function(){
-        if (this.getStats().each == 3) ok()
-      })
-    }) 
-  });
+
 
 });
 
