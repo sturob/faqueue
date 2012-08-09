@@ -29,28 +29,29 @@ Time passes
 =>  121, 144, 169 ... 196
 
 
-Options
+
+
+Methods
 -------
 
-Passed in on initialisation.
+__.options( object )__
 
-__each([callback])__
+* __each([callback])__
+
 A function to process each queue item. Inside the function *this* will be the current queue item. 
 
 If the function definition receives a parameter, the function is expected to run the callback to indicate it has finished.
 
 If the function returns a callback, that callback is used to cancel any pending processing if .cancel() is called.
 
-__perBatch__
+* __perBatch__
+
 How many queue items to process in each batch.
 
-__restTime__
+* __restTime__
+
 How long to rest in milliseconds between batches.
 
-
-
-Methods
--------
 
 __.add( array )__
 
