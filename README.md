@@ -35,7 +35,11 @@ Options
 Passed in on initialisation.
 
 __each([callback])__
-A function to process each queue item. *this* will be the queue item. If the function has a callback, that callback will be run to indicate the function is complete. 
+A function to process each queue item. Inside the function *this* will be the current queue item. 
+
+If the function definition receives a parameter, the function is expected to run the callback to indicate it has finished.
+
+If the function returns a callback, that callback is used to cancel any pending processing if .cancel() is called.
 
 __perBatch__
 How many queue items to process in each batch.
