@@ -3,7 +3,7 @@ faqueue.js
 
 Fully asynchronous queues. Stop the browser locking up when processing long arrays. 
 
-Asynchronously evaluate an array while modifying it. Like $.lazyEach but you can add items to it any time. 
+Asynchronously evaluate an array while modifying it. Like $.lazyEach but you can add items to it at any time. 
 
 Method chaining is supported.
 
@@ -83,9 +83,9 @@ Clear queue and reset statistics.
 
 ### clear
 
-Clear queue __q__ but continue to wait for new items.
+Clear queue but continue to wait for new items.
 
-	q.clear()
+    q.clear()
 
 
 
@@ -120,7 +120,7 @@ Subscribe to various events that the queue emits. See events section for event n
 
 Return an hash with add, each and batch counts.
 
-	var stats = q.getStats()
+    var stats = q.getStats()
 
 
 
