@@ -49,21 +49,25 @@ describe('faqueue', function(){
       })
     });
   
-    // it("if 'each' returns a function, call that function on .cancel()", function (ok) {
-    //   fq({
-    //     restTime: 10, perBatch: 1, 
-    //     each: function(done){ 
-    //       var timeId = setTimeout(
-    //                       function(){
-    //                         console.log('shouldnt see me');
-    //                         done();
-    //                       }, 100);
-    //       return function(){ clearTimeout(timeId) }
-    //     }
-    //   }).add([1,2,3]).on('wait', function(){
-    //     if (this.getStats().each == 3) ok()
-    //   })
-    // });
+    it("if 'each' returns a function, call that function on .cancel()", function (ok) {
+      var stayfalse = false;
+      fq({
+        restTime: 0, perBatch: 1, 
+        each: function(){
+          console.log('added ' + this)
+          var timeId = setTimeout(
+                          function(){
+                                    console.log(stayfalse)
+
+                            stayfalse = true;
+                          }, 1000);
+
+          return function(){ clearTimeout(timeId) }
+        }
+      }).add([1,2,3]).on('cancel', function(){
+        if (! stayfalse) ok();
+      }).cancel();
+    });
 
 
     it("'restTime' should cause resting between batches")

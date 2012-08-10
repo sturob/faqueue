@@ -138,6 +138,8 @@
     this.paused  = false;
     this.waiting = true;
 
+    this._cancelCallbacks = [];
+
     this.counts = {
       queued: 0, each: 0, batch: 0
     };
@@ -220,12 +222,15 @@
       this.trigger('batch');
 
       _(head).each(function(value){
+        var cancel;
         if (async) {
-          that._options.each.call(value, multidone);
+          cancel = that._options.each.call(value, multidone);
           // callback needed
         } else {
-          that._options.each.call(value);
+          cancel = that._options.each.call(value);
         }
+
+        that._cancelCallbacks.push( cancel );
 
         that.counts.each++;
       });
@@ -243,6 +248,17 @@
     this.oneBatch();
     return this;
   };
+
+  fq.prototype.cancel = function(){
+    this.trigger('cancel');
+
+    console.log( this._cancelCallbacks );
+
+    _(this._cancelCallbacks).each(function(cancel) {
+      cancel();
+    });
+    this._cancelCallbacks = [];
+  }
 
   fq.prototype.getStats = function() {
     return this.counts;
