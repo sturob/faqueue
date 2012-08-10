@@ -132,7 +132,7 @@ Inside the callback, *this* is the current queue item.
 
 faqueue detects if the _each callback_ receives a parameter, this parameter is a function that should be called to indicate processing is complete.
 
-    faqueue({ each: function(done){
+    faqueue().each( function(done){
       setTimeout(function(){ 
         console.log('relax x' + this);
     	done();
@@ -141,7 +141,7 @@ faqueue detects if the _each callback_ receives a parameter, this parameter is a
 
 The _each callback_ can return a cancel function. The cancel function will be used to clean up processing if .cancel() is called.
 
-    faqueue({ each: function(){
+    faqueue().each( function(){
       var id = setTimeout(function(){ 
                  console.log('waiting around to see if I can be cancelled') 
                }, 10000);
