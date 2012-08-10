@@ -138,6 +138,7 @@
     this.paused  = false;
     this.waiting = true;
 
+    this._each = function(){};
     this._cancelCallbacks = [];
 
     this.counts = {
@@ -149,11 +150,16 @@
 
   fq.prototype.options = function(options){
     this._options = _.defaults( options, {
-      each: function() {},
       perBatch: 25,  restTime: 10 // workers: 1, timeout: null
     });
     return this;
   }
+
+  fq.prototype.each = function(e) {
+    this._each = e;
+    return this;
+  };
+  
 
   fq.prototype.length = function(){
     return this.queue.length;
@@ -196,7 +202,7 @@
 
   fq.prototype.oneBatch = function(){
     var that  = this,
-        async = (that._options.each.length > 0),
+        async = (that._each.length > 0),
         batchDone = function() {
           that.trigger('rest');
           that.resting = true;
@@ -224,13 +230,15 @@
       _(head).each(function(value){
         var cancel;
         if (async) {
-          cancel = that._options.each.call(value, multidone);
+          cancel = that._each.call(value, multidone);
           // callback needed
         } else {
-          cancel = that._options.each.call(value);
+          cancel = that._each.call(value);
         }
 
-        that._cancelCallbacks.push( cancel );
+        if (cancel) that._cancelCallbacks.push( cancel );
+
+
 
         that.counts.each++;
       });
@@ -250,14 +258,18 @@
   };
 
   fq.prototype.cancel = function(){
-    this.trigger('cancel');
+    var that = this;
 
-    console.log( this._cancelCallbacks );
+    _.delay(function() { // make sure chained cancels don't happen before add()s
+      that.trigger('cancel');
+      that.clear();
 
-    _(this._cancelCallbacks).each(function(cancel) {
-      cancel();
-    });
-    this._cancelCallbacks = [];
+      _(that._cancelCallbacks).each(function(cancel) {
+        cancel();
+      }); 
+      that._cancelCallbacks = [];      
+    }, 0);
+
   }
 
   fq.prototype.getStats = function() {

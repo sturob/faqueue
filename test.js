@@ -8,65 +8,54 @@ describe('faqueue', function(){
 
   describe('options:', function () {
     it('should have defaults', function(){
-      var q = fq().pause();
+      var q = fq();
       assert.ok( q._options.perBatch );
       assert.ok( q._options.restTime );
-      assert.ok( q._options.each );
     });
 
     it('should be set from initialisation', function(){
-      var ops = { perBatch: 10, restTime: 100, each: function(){ return false } },
+      var ops = { perBatch: 10, restTime: 100 },
           q   = fq( ops );
       assert.equal( ops.perBatch,  q._options.perBatch  );
       assert.equal( ops.restTime,  q._options.restTime );
-      assert.equal( ops.each,      q._options.each );
     });
 
 
     it('can be set with options()', function(){
-      var ops = { perBatch: 10, restTime: 100, each: function(){ return false } },
+      var ops = { perBatch: 10, restTime: 100 },
           q   = fq().options(ops);
       assert.equal( ops.perBatch,  q._options.perBatch  );
       assert.equal( ops.restTime,  q._options.restTime );
-      assert.equal( ops.each,      q._options.each );
     });
     
     it("'each' should work syncronously without a callback", function (ok) {
-      fq({
-        restTime: 0, perBatch: 1, 
-        each: function(){ }
-      }).add([1,2,3]).on('wait', function(){
+      fq({ restTime: 0, perBatch: 1 }).each(function(){}).on('wait', function(){
         if (this.getStats().each == 3) ok()
-      })
+      }).add([1,2,3]);
     });
 
     it("'each' should work asyncronously with a callback once complete", function (ok) {
-      fq({
-        restTime: 0, perBatch: 1, 
-        each: function(done){ setTimeout(done, 100) }
-      }).add([1,2,3]).on('wait', function(){
-        if (this.getStats().each == 3) ok()
-      })
+      fq({ restTime: 0, perBatch: 1 }).each(
+        function(done){ setTimeout(done, 100) }
+      ).on('wait', 
+        function(){ if (this.getStats().each == 3) ok() }
+      ).add([1,2,3]);
     });
   
     it("if 'each' returns a function, call that function on .cancel()", function (ok) {
       var stayfalse = false;
-      fq({
-        restTime: 0, perBatch: 1, 
-        each: function(){
-          console.log('added ' + this)
-          var timeId = setTimeout(
-                          function(){
-                                    console.log(stayfalse)
-
-                            stayfalse = true;
-                          }, 1000);
-
-          return function(){ clearTimeout(timeId) }
-        }
+      var q = fq({ restTime: 0, perBatch: 1 }).each(function(){
+        // console.log('added ' + this)
+        var timeId = setTimeout(function(){
+          stayfalse = true;
+        }, 1000);
+ 
+        return function(){ clearTimeout(timeId); }
       }).add([1,2,3]).on('cancel', function(){
         if (! stayfalse) ok();
-      }).cancel();
+      });
+
+      _.delay(function () { q.cancel(); }, 200);
     });
 
 
@@ -93,7 +82,7 @@ describe('faqueue', function(){
     });
 
     it('should add elements while queue is processing', function(ok) {
-      var q = fq({ each: function() { result.push(this) }, perBatch: 1, restTime: 100 }),
+      var q = fq({ perBatch: 1, restTime: 100 }).each(function() { result.push(this) }),
           result = [];
 
       q.on('wait', function(){
@@ -104,7 +93,7 @@ describe('faqueue', function(){
     });
 
     it('should process added elements if queue is done processing', function(ok) {
-      var q = fq({ each: function() { result.push(this) } }),
+      var q = fq().each(function() { result.push(this) }),
           result = [];
 
       q.on('wait', function(){
@@ -130,7 +119,7 @@ describe('faqueue', function(){
     it('should be called automatically', function(ok) {
       var arr = [ 1, 2, 3, 4, 5 ]; 
       var five = _.after(arr.length, function(){ ok() })
-      fq({ each: five, restTime: 100, perBatch: 1 }).add(arr);
+      fq({ restTime: 100, perBatch: 1 }).each(five).add(arr);
     });
 
     it('should trigger start and wait events', function(ok) {
@@ -154,8 +143,7 @@ describe('faqueue', function(){
         output.push(this * 2);
         yup();
       };
-      fq({ each: each, restTime: 10, perBatch: 1 })
-        .add(input).on('wait', done);
+      fq({ restTime: 10, perBatch: 1 }).each( each ).add(input).on('wait', done);
     });
 
     it('should correctly handle the perBatch option', function(ok) {
