@@ -43,7 +43,9 @@ Create a new faqueue object configured with the __options__ hash.
 
 
 ### options
-	
+
+Set options at any time.
+    
     q.options( options )
 
 Possible keys in the __options__ hash are:
@@ -55,61 +57,89 @@ Possible keys in the __options__ hash are:
 
 ### add
 
+Add __array__ to the end of the queue.
+
     q.add( array )
 
-Add __array__ to the end of queue __q__.
+
 
 
 ### reset
 
+Clear queue and reset statistics.
+
 	q.reset()
 
-Clear queue __q__ and reset statistics.
+
 
 
 ### clear
-	
-	q.clear()
 
 Clear queue __q__ but continue to wait for new items.
+
+	q.clear()
+
+
 
 
 ### pause
 
+Pause processing of the queue.
+
     q.pause()
 
-Pause processing of __q__.
+
 
 
 ### resume
 
+Resume processing of the queue.
+
     q.resume()
 
-Resume processing of __q__.
+
 
 ### on
 
+Subscribe to various events that the queue emits. See events section for event names.
+
     q.on('event', callback)
 
-Subscribe to events. For available events see events section.
+
 
 
 ### getStats
 
+Return an hash with add, each and batch counts.
+
 	var stats = q.getStats()
 
-Return an hash with add, each and batch counts.
+
 
 
 Special properties of the _each_ callback
 -----------------------------------------
 
-Inside the function *this* will be the current queue item. 
+Inside the callback, *this* is the current queue item. 
 
-If the function definition receives a parameter, the function is expected to run the callback to indicate it has finished.
+If the callback receives a parameter, the function is expected to run the callback to indicate it has finished.
 
-If the function returns a callback, that callback is called to cancel any pending processing if .cancel() is called.
+    faqueue({ each: function(done){
+      setTimeout(function(){ 
+        console.log('relax x' + this);
+    	done();
+      }, 10000);
+    }).add([1, 2, 3]);
 
+The callback can return a cancel function. The cancel function will be used to clean up processing if .cancel() is called.
+
+    faqueue({ each: function(){
+      var id = setTimeout(function(){ 
+                 console.log('waiting around to see if I can be cancelled') 
+               }, 10000);
+      return function(){ clearTimeout( id ) };
+    }).add([1, 2, 3]);
+    
 
 Events
 ------
