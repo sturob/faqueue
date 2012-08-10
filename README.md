@@ -122,7 +122,7 @@ Special properties of the _each_ callback
 
 Inside the callback, *this* is the current queue item. 
 
-If the callback receives a parameter, the function is expected to run the callback to indicate it has finished.
+faqueue detects if the _each callback_ receives a parameter, this parameter is a function that should be called to indicate processing is complete.
 
     faqueue({ each: function(done){
       setTimeout(function(){ 
@@ -131,7 +131,7 @@ If the callback receives a parameter, the function is expected to run the callba
       }, 10000);
     }).add([1, 2, 3]);
 
-The callback can return a cancel function. The cancel function will be used to clean up processing if .cancel() is called.
+The _each callback_ can return a cancel function. The cancel function will be used to clean up processing if .cancel() is called.
 
     faqueue({ each: function(){
       var id = setTimeout(function(){ 
