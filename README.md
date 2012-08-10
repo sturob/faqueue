@@ -14,12 +14,12 @@ Example
 A queue that calculates and outputs squares, 3 per batch, with a 20ms delay between each batch.
 
     var options = {
-      each: function(){ console.log( this * this ) },
       perBatch:  3,
       restTime: 20
     };
 
-    var q = faqueue(options).add([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]);
+    var q = faqueue(options).each(function(){ console.log( this * this ) });
+    q.add([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]);
     
 => 1, 4, 9 ... 16, 25, 36 ... 49, 64, 81 ... 100
 
@@ -50,9 +50,17 @@ Set options at any time.
 
 Possible keys in the __options__ hash are:
 
-* each: A callback to be run on each queue item (default: function(){})
 * perBatch: How many queue items to process in each batch (default: 25).
 * restTime: How long to rest in milliseconds between batches (default: 10).
+
+
+### each
+
+Set the function to be run on each queue item.
+
+    q.each( function(){ console.log(this) } )
+
+See 'Special properties of the _each_ callback' for more details.
 
 
 ### add
