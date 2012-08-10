@@ -1,11 +1,12 @@
 faqueue.js
 ==========
 
-A fully asynchronous queue. Stop the browser locking up when processing long arrays. 
+Fully asynchronous queues. Stop the browser locking up when processing long arrays. 
 
-Asynchronously evaluate an array while modifying it. Like $.lazyEach but you can add items to it anytime. 
+Asynchronously evaluate an array while modifying it. Like $.lazyEach but you can add items to it any time. 
 
 Method chaining is supported.
+
 
 Example
 -------
@@ -34,52 +35,80 @@ Time passes
 Methods
 -------
 
-__.options( object )__
+### Instantiate
 
-each: function([callback])
+    var q = faqueue(options);
 
-A function to process each queue item. Inside the function *this* will be the current queue item. 
+Create a new faqueue object configured with the __options__ hash.
+
+
+### options
+	
+    q.options( options )
+
+Possible keys in the __options__ hash are:
+
+* each: A callback to be run on each queue item (default: function(){})
+* perBatch: How many queue items to process in each batch (default: 25).
+* restTime: How long to rest in milliseconds between batches (default: 10).
+
+
+### add
+
+    q.add( array )
+
+Add __array__ to the end of queue __q__.
+
+
+### reset
+
+	q.reset()
+
+Clear queue __q__ and reset statistics.
+
+
+### clear
+	
+	q.clear()
+
+Clear queue __q__ but continue to wait for new items.
+
+
+### pause
+
+    q.pause()
+
+Pause processing of __q__.
+
+
+### resume
+
+    q.resume()
+
+Resume processing of __q__.
+
+### on
+
+    q.on('event', callback)
+
+Subscribe to events. For available events see events section.
+
+
+### getStats
+
+	var stats = q.getStats()
+
+Return an hash with add, each and batch counts.
+
+
+Special properties of the _each_ callback
+-----------------------------------------
+
+Inside the function *this* will be the current queue item. 
 
 If the function definition receives a parameter, the function is expected to run the callback to indicate it has finished.
 
-If the function returns a callback, that callback is used to cancel any pending processing if .cancel() is called.
-
-perBatch: integer
-
-How many queue items to process in each batch.
-
-restTime: integer
-
-How long to rest in milliseconds between batches.
-
-
-__.add( array )__
-
-Add an array to the end of the queue.
-
-__.reset()__
-
-Clear the queue and reset statistics.
-
-__.clear()__
-
-Clear the queue but continue to wait for new items.
-
-__.pause()__
-
-Pause processing.
-
-__.resume()__
-
-Resume processing.
-
-__.on('eventname', function(){})__
-
-Subscribe to events.
-
-__.getStats()__
-
-Return an object with add, each and batch counts.
+If the function returns a callback, that callback is called to cancel any pending processing if .cancel() is called.
 
 
 Events
@@ -100,6 +129,7 @@ Todo
 ----
 
 __.sort( function(a, b){} )__
+
 Sort the queue with function.
 
 __workers__
