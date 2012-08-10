@@ -120,10 +120,10 @@
 
 
   // States
-  //   paused: processing paused
-  //   resting: resting between batches
+  //   _paused: processing paused
+  //   _resting: resting between batches
   //   inbatch: processing a batch
-  //   waiting: queue empty, waiting for more to be added
+  //   _waiting: queue empty, waiting for more to be added
 
   var fq = function(options) {
     this.init( options || {} );
@@ -134,14 +134,14 @@
 
     _.extend(this, Events);
 
-    this.resting = false;
-    this.paused  = false;
-    this.waiting = true;
+    this._resting = false;
+    this._paused  = false;
+    this._waiting = true;
 
     this._each = function(){};
     this._cancelCallbacks = [];
 
-    this.counts = {
+    this._counts = {
       queued: 0, each: 0, batch: 0
     };
 
@@ -168,9 +168,9 @@
   fq.prototype.add = function(arr) {
     var that = this;
     this.queue = this.queue.concat( arr );
-    this.counts.queued += arr.length;
+    this._counts.queued += arr.length;
     this.trigger('add');
-    if (this.waiting && ! this.paused && ! this.resting) {
+    if (this._waiting && ! this._paused && ! this._resting) {
       _.delay(function(){ that.start() }, 0);
     }
     return this;
@@ -190,32 +190,32 @@
 
   fq.prototype.pause = function(){
     this.trigger('pause');
-    this.paused = true;
+    this._paused = true;
     return this;
   };
 
   fq.prototype.resume = function(){
     this.trigger('resume');
-    this.paused = false;
+    this._paused = false;
     return this;
   };
 
-  fq.prototype.oneBatch = function(){
+  fq.prototype._oneBatch = function(){
     var that  = this,
         async = (that._each.length > 0),
         batchDone = function() {
           that.trigger('rest');
-          that.resting = true;
+          that._resting = true;
           // rest and then recurse using setTimeout (so don't worry about the stack)
-          that.batchTimeout = _.delay( function(){ that.oneBatch() }, that._options.restTime);
+          that.batchTimeout = _.delay( function(){ that._oneBatch() }, that._options.restTime);
         },
         multidone = _.after( this._options.perBatch, batchDone );
 
     this.batchTimeout = null;
-    this.resting = false;
+    this._resting = false;
 
-    if (this.paused) {
-      this.pauseTimeout = _.delay( function(){ that.oneBatch() }, 10);
+    if (this._paused) {
+      this.pauseTimeout = _.delay( function(){ that._oneBatch() }, 10);
       return;
     } else {
       this.pauseTimeout = null;
@@ -224,7 +224,7 @@
     if (this.length() > 0) {
       var head = this.queue.splice(0, this._options.perBatch);
 
-      this.counts.batch++;
+      this._counts.batch++;
       this.trigger('batch');
 
       _(head).each(function(value){
@@ -240,20 +240,20 @@
 
 
 
-        that.counts.each++;
+        that._counts.each++;
       });
 
       if (! async) batchDone();
     } else {
-      if (! this.waiting) this.trigger('wait');
-      this.waiting = true;
+      if (! this._waiting) this.trigger('wait');
+      this._waiting = true;
     }
   };
 
   fq.prototype.start = function() {
-    this.waiting = false;
+    this._waiting = false;
     this.trigger('start');
-    this.oneBatch();
+    this._oneBatch();
     return this;
   };
 
@@ -273,7 +273,7 @@
   }
 
   fq.prototype.getStats = function() {
-    return this.counts;
+    return this._counts;
   };
 
   var faqueue = function(options) { 
