@@ -130,7 +130,7 @@ Special properties of the _each_ callback
 
 Inside the callback, *this* is the current queue item. 
 
-faqueue detects if the _each callback_ receives a parameter, this parameter is a function that should be called to indicate processing is complete.
+If the function passed to _each_ takes a parameter, then that parameter will itself should be called (it is a function) once processing is complete.
 
     faqueue().each( function(done){
       setTimeout(function(){ 
