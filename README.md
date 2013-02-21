@@ -130,7 +130,7 @@ Special properties of the _each_ callback
 
 Inside the callback, *this* is the current queue item. 
 
-If the function passed to _each_ takes a parameter, then that parameter will itself should be called (it is a function) once processing is complete.
+If the function passed to _each_ takes a parameter, then that parameter itself should be called (it is a function) once processing is complete.
 
     faqueue().each( function(done){
       setTimeout(function(){ 
@@ -165,6 +165,8 @@ Internal events are more useful:
 
 Todo
 ----
+
+Figure out how to replace this all with promises.
 
 __.sort( function(a, b){} )__
 
